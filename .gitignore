@@ -7,4 +7,5 @@
 .buildlog/
 .history
 build/
+src/cpp/extern/
 .vscode/
