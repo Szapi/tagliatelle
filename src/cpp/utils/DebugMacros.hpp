@@ -1,17 +1,16 @@
 #pragma once
 
-#define ENABLE_DEBUG_MACROS
 #ifdef ENABLE_DEBUG_MACROS
 
-#include <format>
-#include <stdexcept>
+    #include <format>
+    #include <stdexcept>
 
-#define _F std::format
+    #define _F std::format
 
-#define ASSERT(expr,msg) if (!expr) [[unlikely]] throw std::runtime_error(msg)
+    #define ASSERT(expr,msg) if (!expr) [[unlikely]] throw std::runtime_error(msg)
 
 #else
 
-#define ASSERT(expr,msg)
+    #define ASSERT(expr,msg)
 
 #endif
