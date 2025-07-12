@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm> // std::copy_n
+#include <algorithm> // std::copy_n, std::ranges::for_each
 #include <array>
 #include <forward_list>
 #include <string_view>
@@ -10,6 +10,8 @@
 namespace tagliatelle
 {
 
+    // Text buffer that can grow indefinitely without invalidating
+    // existing views to this buffer.
     template <std::size_t PageSz>
     class StableTextBuffer
     {
@@ -28,10 +30,13 @@ namespace tagliatelle
                 return str.size() <= remainingSpace;
             }
 
-            std::string_view StoreUnsafe(const std::string_view str)
+            [[nodiscard]] std::string_view StoreUnsafe(const std::string_view str)
             {
-                ASSERT(CanFit(str), _F("StoreUnsafe: cannot fit string of length {}, remaining space is {}, page size is {}", str.size(), PageSz - occupied, PageSz));
-
+                ASSERT(
+                    CanFit(str),
+                    _F("StoreUnsafe: cannot fit string of length {}, remaining space is {}, page size is {}",
+                        str.size(), PageSz - occupied, PageSz)
+                );
                 const auto len = str.length();
                 const auto dst = data.begin() + occupied;
                 std::copy_n(str.begin(), len, dst);
@@ -56,17 +61,30 @@ namespace tagliatelle
 
         MOVE_ONLY(StableTextBuffer);
 
+        // Deallocate all pages, unlike STL's clear()
         void Clear()
         {
             pages.clear();
+            recycledPages.clear();
         }
 
+        // Reuse allocated pages, equivalent to STL's clear()
+        // Recycled pages are reused in the order of allocation
         void Recycle()
         {
-            for (auto& p : pages) p.Recycle();
+            recycledPages.clear();
+            auto RecycleOne = [this, head = true](Page& p) mutable
+                {
+                    p.Recycle();
+                    if (!head)
+                        recycledPages.push_back(&p);
+                    head = false;
+                };
+            std::ranges::for_each(pages, RecycleOne);
         }
 
-        std::string_view Store(const std::string_view str)
+        // Copies the given string to the buffer and returns a view of it
+        [[nodiscard]] std::string_view Store(const std::string_view str)
         {
             ASSERT(str.size() <= PageSz, _F("StableTextBuffer: cannot fit string of length {}, page size is only {}", str.size(), PageSz));
 
@@ -76,24 +94,25 @@ namespace tagliatelle
             if (pages.empty()) [[unlikely]]
                 return pages.emplace_front().StoreUnsafe(str);
 
-            if (pages.front().CanFit(str)) [[likely]]
-                return pages.front().StoreUnsafe(str);
-
-            // Check if recycled
-            const auto secondPage = ++pages.cbegin();
-            if (secondPage != pages.cend() && secondPage->Empty())
+        TryRecycled:
+            if (!recycledPages.empty())
             {
-                // Effectively rotates the list once to the left
-                pages.splice_after(pages.before_begin(), pages, pages.cbegin(), pages.cend());
-                return pages.front().StoreUnsafe(str);
+                if (recycledPages.back()->CanFit(str)) [[likely]]
+                    return recycledPages.back()->StoreUnsafe(str);
+
+                recycledPages.pop_back();
+                goto TryRecycled;
             }
 
-            // No capacity --> allocate new page
-            return pages.emplace_front().StoreUnsafe(str);
+            if (!pages.front().CanFit(str)) [[unlikely]]
+                pages.emplace_front();
+
+            return pages.front().StoreUnsafe(str);
         }
 
     private:
-        std::forward_list<Page> pages{};
+        std::forward_list<Page> pages;
+        std::vector<Page*>      recycledPages;
     };
 
 } // namespace tagliatelle
