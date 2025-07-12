@@ -83,6 +83,14 @@ namespace tagliatelle
             std::ranges::for_each(pages, RecycleOne);
         }
 
+        // Deallocate unused pages
+        void Prune()
+        {
+            recycledPages.clear();
+            while (!pages.empty() && pages.front().Empty())
+                pages.pop_front();
+        }
+
         // Copies the given string to the buffer and returns a view of it
         [[nodiscard]] std::string_view Store(const std::string_view str)
         {
