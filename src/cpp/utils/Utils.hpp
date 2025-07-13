@@ -17,3 +17,21 @@
     IMMOVABLE(Class);               \
     Class(Class&&) = default;       \
     Class& operator=(Class&&) = default
+
+
+namespace tagliatelle::_detail
+{
+
+    consteval bool IsPowerOfTwo(const std::size_t n)
+    {
+        return (n > 1) && ((n & (n - 1)) == 0);
+    }
+
+    // Valid zero-based index for random-access container
+    constexpr bool ValidIndexZB(const auto idxUntyped, const auto& container)
+    {
+        const auto idx = static_cast<std::size_t>(idxUntyped);
+        return (idx >= 0) && (idx < container.size());
+    }
+
+} // namespace tagliatelle::_detail

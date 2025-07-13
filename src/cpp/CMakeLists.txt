@@ -15,6 +15,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
     add_compile_definitions(ENABLE_DEBUG_MACROS)
 endif()
 
+add_compile_definitions(ENFORCE_PAGED_ARRAY_PAGE_SIZE_CONSTRAINT)
+
 # Global include dirs
 include_directories(utils)
 
