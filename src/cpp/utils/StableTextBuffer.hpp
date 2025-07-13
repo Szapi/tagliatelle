@@ -5,6 +5,7 @@
 #include <forward_list>
 #include <string_view>
 
+#include "StableTextStorageInterfaceConcept.hpp"
 #include "Utils.hpp"
 
 namespace tagliatelle
@@ -49,12 +50,34 @@ namespace tagliatelle
                 occupied = 0;
             }
 
+            Page() = default;
             IMMOVABLE(Page);
 
         private:
             std::array<char, PageSz> data;
             std::size_t occupied = 0;
         };
+
+    public:
+        // Basically a delegate
+        class StorageInterface
+        {
+        public:
+            StorageInterface(StableTextBuffer& bufIn) : buf {&bufIn} {}
+            COPYABLE(StorageInterface);
+
+            [[nodiscard]] std::string_view Store(std::string_view str)
+            {
+                return buf->Store(str);
+            }
+
+        private:
+            StableTextBuffer* buf;
+        };
+
+        static_assert(concepts::StableTextStorageInterface<StorageInterface>);
+
+        [[nodiscard]] StorageInterface GetInterface() { return {*this}; }
 
     public:
         StableTextBuffer() = default;

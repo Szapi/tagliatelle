@@ -1,4 +1,4 @@
-add_executable(tests StableTextBufferTest.cpp PagedArrayTest.cpp)
+add_executable(tests StableTextBufferTest.cpp PagedArrayTest.cpp WordDictionaryTest.cpp)
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 
 target_include_directories(tests PUBLIC ../lib_main)

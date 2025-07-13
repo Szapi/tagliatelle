@@ -18,9 +18,11 @@
     Class(Class&&) = default;       \
     Class& operator=(Class&&) = default
 
-
+    
 namespace tagliatelle::_detail
 {
+
+    template<class> struct With{};
 
     consteval bool IsPowerOfTwo(const std::size_t n)
     {
