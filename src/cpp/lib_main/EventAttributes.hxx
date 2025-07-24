@@ -57,6 +57,8 @@ namespace tagliatelle
         requires _detail::IsIntegralConstant<typename T::PageSize,         std::size_t>;
         requires _detail::IsIntegralConstant<typename T::MaxLength,        std::size_t>;
         requires _detail::IsIntegralConstant<typename T::LongTextHandling, LongTextHandlingStrategy>;
+        requires T::PageSize::value >= T::MaxLength::value;
+        requires T::MaxLength::value > 0;
     };
 
     #define DEFINE_TEXT_PART(name, maxLen, pageSize, longTextHandling)                  \
@@ -127,20 +129,20 @@ namespace tagliatelle
     concept DynamicEnumAttribute = requires()
     {
         requires _detail::IsKind<AttributeKind::DynamicEnum, typename T::Kind>;
-        requires _detail::IsIntegralConstant<typename T::AllowMultiple,    bool>;
         requires _detail::IsIntegralConstant<typename T::MaxLength,        std::size_t>;
         requires _detail::IsIntegralConstant<typename T::PageSize,         std::size_t>;
         requires _detail::IsIntegralConstant<typename T::LongTextHandling, LongTextHandlingStrategy>;
+        requires T::PageSize::value >= T::MaxLength::value;
+        requires T::MaxLength::value > 0;
     };
 
-    #define DEFINE_DYNAMIC_ENUM_PART(name, allowMultiple, maxLen, pageSize, longTextHandling)   \
+    #define DEFINE_DYNAMIC_ENUM_PART(name, maxLen, pageSize, longTextHandling)                  \
         class name final { public:                                                              \
             NOT_TIEBRAKER;                                                                      \
             using Kind = std::integral_constant<AttributeKind, AttributeKind::DynamicEnum>;     \
-            using AllowMultiple     = std::integral_constant<bool,        allowMultiple>;       \
-            using MaxLength         = std::integral_constant<std::size_t, maxLen>;              \
-            using PageSize          = std::integral_constant<std::size_t, pageSize>;            \
-            using LongTextHandling  = std::integral_constant<LongTextHandlingStrategy, LongTextHandlingStrategy:: longTextHandling>; \
+            using MaxLength        = std::integral_constant<std::size_t, maxLen>;               \
+            using PageSize         = std::integral_constant<std::size_t, pageSize>;             \
+            using LongTextHandling = std::integral_constant<LongTextHandlingStrategy, LongTextHandlingStrategy:: longTextHandling>; \
         }
 
 ///////////////////////////////////////////////////////////////////////////
