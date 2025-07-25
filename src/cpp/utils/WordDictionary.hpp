@@ -13,19 +13,28 @@
 namespace tagliatelle
 {
 
-    template<std::integral EncodeType, concepts::StableTextStorageInterface TextStorage>
+    template<
+        std::integral EncodeType,
+        concepts::StableTextStorageInterface TextStorage,
+        EncodeType MaxValue = std::numeric_limits<EncodeType>::max()>
+    >
     class WordDictionary
     {
-        inline static constexpr EncodeType EmptyEncoded = 0; // Reserved for empty string
+        inline static constexpr EncodeType EmptyEncoded  = 0; // Reserved for empty string
         inline static constexpr EncodeType StartingValue = 1;
-        inline static constexpr EncodeType MaxValue = std::numeric_limits<EncodeType>::max();
 
         inline static constexpr auto DictionaryFullString = std::string_view{"!DICTIONARY FULL!"};
 
     public:
         WordDictionary(TextStorage textStorage) : texts{textStorage} {}
+        
         // Helper constructor for CTAD
-        WordDictionary(_detail::With<EncodeType>, TextStorage textStorage) : WordDictionary{textStorage} {}
+        WordDictionary(_detail::With<EncodeType>,
+                       TextStorage textStorage,
+                       _detail::Constant<EncodeType, MaxValue>) :
+            WordDictionary(textStorage)
+        {}
+
         MOVE_ONLY(WordDictionary);
 
         EncodeType Encode(const std::string_view str)
