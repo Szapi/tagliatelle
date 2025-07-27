@@ -19,6 +19,6 @@ namespace tagliatelle::concepts
     }
 
     template<class T, class ... Us>
-    concept StableTextStorageInterface = (_detail::StableTextStorageInterface<T> && _detail::StableTextStorageInterface<Us> && ...);
+    concept StableTextStorageInterface = (_detail::StableTextStorageInterface<T> && (_detail::StableTextStorageInterface<Us> && ...));
 
 } // namespace tagliatelle::concepts
