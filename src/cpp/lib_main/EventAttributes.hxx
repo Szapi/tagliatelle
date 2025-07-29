@@ -195,8 +195,10 @@ namespace tagliatelle
     } // namespace _detail
 
     template<class...Attributes>
-    concept EventDefinition = requires ()
+    concept EventDefinition = requires
     {
+        requires (EventAttribute<Attributes> && ...);
+        requires _detail::UniquePack<Attributes...>;
         requires _detail::TimestampCount<Attributes...> == 1;
         requires _detail::UnambiguousTiebrakers<Attributes...>();
     };
