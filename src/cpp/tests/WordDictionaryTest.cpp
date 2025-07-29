@@ -18,7 +18,7 @@ TEST_CASE( "Factorials are computed 3", "[factorial]" ) {
     using namespace tagliatelle::_detail;
 
     tagliatelle::StableTextBuffer<1024> tbuf;
-    tagliatelle::WordDictionary dict{With<unsigned int>{}, tbuf.GetInterface()};
+    tagliatelle::WordDictionary dict{With<unsigned int>{}, tbuf.GetInterface(), Constant<unsigned int, 512>{}};
     
     REQUIRE( dict.Encode("") == 0u);
     REQUIRE( dict.Encode("a") == 1u);

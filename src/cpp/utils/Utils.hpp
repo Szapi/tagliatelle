@@ -41,6 +41,8 @@ namespace tagliatelle::_detail
 // Template metaprogramming utilities
 
     template<class> struct With{};
+
+    template<class T, T> struct Constant {};
     
     // This trait can be used to detect if an expression is in fact a compile-time constant
     template<class,class>    constexpr bool IsIntegralConstant = false;

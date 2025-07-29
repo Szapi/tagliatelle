@@ -16,7 +16,7 @@ namespace tagliatelle
     template<
         std::integral EncodeType,
         concepts::StableTextStorageInterface TextStorage,
-        EncodeType MaxValue = std::numeric_limits<EncodeType>::max()>
+        EncodeType MaxValue = std::numeric_limits<EncodeType>::max()
     >
     class WordDictionary
     {
