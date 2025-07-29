@@ -5,9 +5,12 @@
 #include <ranges>
 #include <string_view>
 #include <type_traits>
+#include <tuple>
 
 #include "DebugMacros.hpp"
 
+// ----------------------------------------------------------------
+// Class traits
 
 #define IMMOVABLE(Class)            \
     Class(const Class&) = delete;   \
@@ -34,11 +37,21 @@
 namespace tagliatelle::_detail
 {
 
+// ----------------------------------------------------------------
+// Template metaprogramming utilities
+
     template<class> struct With{};
+    
+    // This trait can be used to detect if an expression is in fact a compile-time constant
+    template<class,class>    constexpr bool IsIntegralConstant = false;
+    template<class T, T val> constexpr bool IsIntegralConstant<T,std::integral_constant<T, val>> = true;
+
+// ----------------------------------------------------------------
+// Mathematical utilities
 
     consteval bool IsPowerOfTwo(const std::size_t n)
     {
-        return (n > 1) && ((n & (n - 1)) == 0);
+        return (n >= 1) && ((n & (n - 1)) == 0);
     }
 
     // Valid zero-based index for random-access container
@@ -48,11 +61,58 @@ namespace tagliatelle::_detail
         return (idx >= 0) && (idx < container.size());
     }
 
-    // This trait can be used to detect if an expression is in fact a compile-time constant
-    template<class,class>    constexpr bool IsIntegralConstant = false;
-    template<class T, T val> constexpr bool IsIntegralConstant<T,std::integral_constant<T, val>> = true;
+// ----------------------------------------------------------------
+// Parameter pack traits
 
-    // Compile-time operations on string_view arrays
+    template<class T, class...Pack>
+    concept UniqueInPack = requires
+    {
+        std::get<T>(std::declval<std::tuple<Pack...>>());
+    };
+
+    template<class...Pack>
+    constexpr bool UniquePack = (UniqueInPack<Pack, Pack...> && ...);
+
+    // Zero-based index of a type in a pack
+    template<class T, class...Pack>
+    consteval std::size_t _PackIndexImpl()
+    {
+        static_assert(sizeof...(Pack) > 0, "PackIndex requires at least one type in the pack");
+        static_assert(UniquePack<Pack...>, "PackIndex requires unique types in the pack");
+        static_assert(UniqueInPack<T, Pack...>, "PackIndex requires T to be in the pack");
+
+        bool found = false;
+        auto index = std::size_t{0};
+        auto countUntilT = [&]<class U>(With<U>)
+        {
+            if constexpr (std::is_same_v<T, U>)
+                found = true;
+            else
+                index += found ? 0 : 1;
+        };
+        (countUntilT(With<Pack>{}), ...);
+        if (!found)
+            throw "PackIndex: Type not found in pack";
+        return index;
+    }
+
+    template<class T, class...Pack>
+    consteval std::size_t PackIndex()
+    {
+        // Validate the result at compile time
+        static_assert(
+            std::is_same_v<
+                T,
+                std::tuple_element_t<_PackIndexImpl<T, Pack...>(), std::tuple<Pack...>>
+            >,
+            "PackIndex internal error: type mismatch"
+        );
+        return _PackIndexImpl<T, Pack...>();
+    }
+    
+// ----------------------------------------------------------------
+// Compile-time string operations
+
     template<std::size_t N>
     consteval bool AreUnique(const std::array<std::string_view, N>& arr)
     {
