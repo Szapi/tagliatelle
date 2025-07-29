@@ -24,6 +24,12 @@
     Class(Class&&) = default;       \
     Class& operator=(Class&&) = default
 
+
+#define SINGLETON(Class)            \
+    public: IMMOVABLE(Class);       \
+    inline static Class& Instance() { static Class inst{}; return inst; } \
+    private: Class() = default
+
     
 namespace tagliatelle::_detail
 {
