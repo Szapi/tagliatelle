@@ -1,7 +1,7 @@
 # Create the dynamic library
 add_library(tagliatelle SHARED
     tagliatelle_api.cpp
-    Tagliatelle.cpp
+    TagliatelleApp.cpp
 )
 
 # Set library properties
