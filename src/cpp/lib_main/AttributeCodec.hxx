@@ -10,6 +10,10 @@
 namespace tagliatelle
 {
 
+    // Summary: The Codec<T> classes encode the different parts (attributes) of the event as POD
+    //          (trivial) types for efficient storage and filtering.
+    // Contract: Decoding events (for the UI or filtering) can be done without mutex locking,
+    //           even while the codec is being used for encoding newly acquired events.
     template<class> class Codec {};
 
     namespace _detail
@@ -93,6 +97,7 @@ namespace tagliatelle
         }
 
     private:
+        // Stable text buffers allow simultaneous encoding/decoding
         std::conditional_t<
             T::LongTextHandling::value == LongTextHandlingStrategy::Keep,
             _detail::SizeSensitiveTextStorage<T::MaxLength::value, T::PageSize::value>,
@@ -111,6 +116,8 @@ namespace tagliatelle
         
         static_assert(std::is_trivial_v<EncodedType>);
 
+        // Technically a compile-time construct, so parallel encoding/decoding is safe.
+        // Nice-to-have in the future: Perfect hashing (e.g. gperf)
         [[nodiscard]] constexpr auto Encode(const std::string_view str) -> EncodedType
         {
             static_assert(std::ranges::is_sorted(T::Values));
