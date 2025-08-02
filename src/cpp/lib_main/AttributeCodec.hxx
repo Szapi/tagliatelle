@@ -14,66 +14,9 @@ namespace tagliatelle
     //          (trivial) types for efficient storage and filtering.
     // Contract: Decoding events (for the UI or filtering) can be done without mutex locking,
     //           even while the codec is being used for encoding newly acquired events.
+    // Contract: UI receives decoded events as a set of string_view's, in a zero-copy fashion,
+    //           which must remain valid until program end or a full clear.
     template<class> class Codec {};
-
-    namespace _detail
-    {
-
-        template<std::size_t Threshold, std::size_t PageSize> requires (Threshold <= PageSize)
-        class SizeSensitiveTextStorage
-        {
-        public:
-            SizeSensitiveTextStorage() = default;
-            
-            [[nodiscard]] auto Store(const auto& str) -> std::string_view
-            {
-                return str.length() > Threshold ? longStorage.Store(str) : shortStorage.Store(str);
-            }
-
-            // Basically a delegate
-            class StorageInterface
-            {
-            public:
-                StorageInterface(SizeSensitiveTextStorage& impl) : impl {&impl} {}
-                COPYABLE(StorageInterface);
-
-                [[nodiscard]] auto Store(const auto& str) -> std::string_view
-                {
-                    return impl->Store(str);
-                }
-
-            private:
-                SizeSensitiveTextStorage* impl;
-            };
-
-            static_assert(concepts::StableTextStorageInterface<StorageInterface>);
-            
-            [[nodiscard]] StorageInterface GetInterface() { return {*this}; }
-
-        private:
-            StableTextBuffer<PageSize> shortStorage;
-            TrivialTextStorage longStorage;
-        };
-
-        template<std::size_t MaxSize, std::size_t PageSize> requires (MaxSize <= PageSize)
-        class TruncatingTextStorage
-        {
-        public:
-            TruncatingTextStorage() = default;
-            
-            [[nodiscard]] auto Store(const auto& str) -> std::string_view
-            {
-                return storage.Store(
-                    std::string_view{str.data(), std::min(str.length(), MaxSize)}
-                );
-            }
-
-        private:
-            StableTextBuffer<PageSize> storage;
-        };
-        
-    } // namespace _detail
-    
 
 ///////////////////////////////////////////////////////////////////////////
 // TextAttribute
