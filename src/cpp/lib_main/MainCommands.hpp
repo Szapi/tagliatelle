@@ -11,6 +11,8 @@ namespace tagliatelle::commands
         std::unordered_set<std::string> filePaths;
     };
 
-    struct ClearEvents {};
+    struct ClearEventPool {};
+
+    struct Shutdown {};
     
 } // namespace tagliatelle
