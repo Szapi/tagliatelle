@@ -3,6 +3,8 @@
 #include <mutex>
 #include <type_traits>
 
+#include "ClassUtils.hpp"
+
 namespace tagliatelle
 {
 
@@ -13,6 +15,8 @@ namespace tagliatelle
     public:
         template<class...Args>
         MutexGuarded(Args&&... args) : guarded{std::forward<Args>(args)...} {}
+        
+        IMMOVABLE(MutexGuarded);
 
         template<class Op>
         decltype(auto) operator()(Op&& op)
