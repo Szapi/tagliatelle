@@ -10,8 +10,9 @@ std::expected<std::unique_ptr<Engine>, std::string> Engine::CreateAndRun(const E
     return std::make_unique<Engine>(args);
 }
 
-Engine::Engine(const EngineArgs&)
+Engine::Engine(const EngineArgs& args) : logger{args.logger}
 {
+    logger.Info("Engine created");
     this->mainMessageThread = std::make_unique<std::jthread>([&](std::stop_token stopToken) -> void
     {
         while(true)
@@ -30,6 +31,7 @@ Engine::~Engine()
     PushMessage(tagliatelle::commands::Shutdown{});
     mainMessageThread->join();
     mainMessageThread.reset();
+    logger.Info("Engine destroyed");
 }
 
 void Engine::PushMessage(Message message)
@@ -55,6 +57,7 @@ void Engine::PopAndHandleMessage()
 
     if (std::holds_alternative<tagliatelle::commands::Shutdown>(message))
     {
+        logger.Info("Engine shutdown requested");
         mainMessageThread->request_stop();
         pendingMessage.test_and_set();
         return;

@@ -9,12 +9,14 @@
 
 #include "MainCommands.hpp"
 #include "MutexGuarded.hpp"
+#include "LoggingEndpoint.hpp"
 
 namespace tagliatelle
 {
 
     struct EngineArgs
     {
+        logging::Endpoint& logger;
     };
 
     // This class is the main entry point for the backend logic.
@@ -23,6 +25,10 @@ namespace tagliatelle
     {
     public:
         static std::expected<std::unique_ptr<Engine>, std::string> CreateAndRun(const EngineArgs&);
+
+        Engine(const EngineArgs&); // Use the factory method to instantiate!
+        ~Engine();
+        IMMOVABLE(Engine);
 
         using Message = std::variant<
             tagliatelle::commands::ImportEventsFromFiles,
@@ -33,8 +39,7 @@ namespace tagliatelle
         void PushMessage(Message message);
 
     private:
-        Engine(const EngineArgs&); // Use the factory method to instantiate!
-        ~Engine();
+        
 
         void PopAndHandleMessage();
 
@@ -42,6 +47,7 @@ namespace tagliatelle
         MutexGuarded<std::queue<Message>> messageQueue{};
         std::atomic_flag pendingMessage;
         std::unique_ptr<std::jthread> mainMessageThread;
+        logging::Endpoint& logger;
     };
 
 } // namespace tagliatelle
