@@ -2,12 +2,11 @@
 
 #ifdef ENABLE_DEBUG_MACROS
 
-    #include <format>
     #include <stdexcept>
 
-    #define _F std::format
+    #include "FormatUtils.hpp"
 
-    #define ASSERT(expr,msg) if (!expr) [[unlikely]] throw std::runtime_error(msg)
+    #define ASSERT(expr,msg) if (!expr) [[unlikely]] throw std::runtime_error(std::string{msg})
 
 #else
 
