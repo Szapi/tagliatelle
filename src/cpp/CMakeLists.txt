@@ -23,4 +23,5 @@ include_directories(utils)
 # Add subdirectories
 add_subdirectory(extern/Catch2)
 add_subdirectory(lib_main)
+add_subdirectory(console_engine)
 add_subdirectory(tests)
