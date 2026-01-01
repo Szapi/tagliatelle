@@ -1,5 +1,4 @@
 # tagliatelle
-A Flutter-powered software event visualizer platform.
 
 # Event Visualizer Blueprint
 
