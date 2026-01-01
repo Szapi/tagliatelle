@@ -71,7 +71,7 @@ The focus is on helping humans **see patterns over time**, identify active vs. i
 - focused on performance, scalability, and UX consistency
 
 **This repo is not:**
-- a polished end-user product
+- a polished end-user product (though it is very close to it)
 - tied to a specific logging or tracing format
 - limited to a single domain
 
