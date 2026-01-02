@@ -17,8 +17,8 @@ The project is intentionally structured as a split system:
 An event is defined by an **event class**: a structured set of attributes describing something that happened at a specific point in time.
 
 Typical attributes include (but are not limited to):
-- timestamp
-- host or source identifier
+- timestamp (obviously)
+- (event) source identifier
 - severity / level
 - message text
 - flags or custom metadata
@@ -35,18 +35,18 @@ Based on an event class definition, the codebase can be built into:
 A backend library (DLL) responsible for:
 - storing large event datasets
 - searching and filtering (e.g. regex-based)
-- rule-based coloring and metadata computation
+- rule-based labeling and metadata computation
 - efficient paging and caching
 - optional live ingestion or batch import
 
 ### Frontend (Flutter)
 A Flutter desktop UI responsible for:
 - visualizing events in a scrollable, virtualized list
-- applying filters and coloring rules
+- building filters and coloring rules
 - navigating events along a timeline
 - keeping the user’s temporal context stable while exploring data
 
-The UI and backend communicate through a C-compatible API using **ProtoBuf** for data exchange.
+The UI and backend communicate through a C-compatible API as well as **ProtoBuf** messages.
 
 ---
 
