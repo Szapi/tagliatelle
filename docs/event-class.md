@@ -34,9 +34,8 @@ An event may consist of attributes of the following types.
 
 - Plain integer value
 - Examples:
-  - source ID
   - thread ID
-  - CPU core index
+  - process ID
 
 ---
 
