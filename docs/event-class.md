@@ -61,7 +61,7 @@ This behaves like an enum discovered at runtime, hence the name *dynamic enum*.
 
 ### 4. Static Enum
 
-A **static enum** has a predefined, fixed set of possible values known at compile time.
+A **static enum** is a text attribute with a predefined, fixed set of possible values known at compile time.
 
 Typical example:
 - log severity (`Debug`, `Info`, `Warning`, `Error`, `Fatal`)
