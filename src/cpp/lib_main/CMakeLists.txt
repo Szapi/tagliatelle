@@ -1,6 +1,7 @@
 # Define source files
 set(TAGLIATELLE_SOURCES
     Engine.cpp
+    StaticAssertions.cpp
 )
 
 # Create shared library (DLL)
