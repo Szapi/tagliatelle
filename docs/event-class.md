@@ -75,7 +75,7 @@ Characteristics:
 
 ### 5. Text Field
 
-A plain UTF-8 text field.
+A plain Unicode text field.
 
 Examples:
 - log message
